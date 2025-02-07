@@ -4,6 +4,9 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { HapticTab } from '@/components/HapticTab';
+
+const n = 10;
 
 export default function HomeScreen() {
   return (
@@ -16,23 +19,25 @@ export default function HomeScreen() {
           //style={styles.reactLogo}
         />
       }>
+        
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">GET READY FOR MIOC!</ThemedText>
-        <HelloWave />
+        <ThemedText type="title" style={{ fontSize: 40, paddingTop: 10, paddingBottom: 15 }}>GET STARTED</ThemedText>
       </ThemedView>
+
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Korak 1: Odaberite razred</ThemedText>
         <ThemedText>
           Odaberite ovdje:
         </ThemedText>
       </ThemedView>
+
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Korak 2: Dopustite obavijesti</ThemedText>
         <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.  aaa
+          Tap the Explore tab to learn more about what's included in this starter app.
         </ThemedText>
-        <Text> Ja nisam peder, nisam </Text>
       </ThemedView>
+
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Korak 3: Postavite widget na zaslon</ThemedText>
         <ThemedText>
@@ -43,6 +48,7 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
       </ThemedView>
+
     </ParallaxScrollView>
   );
 }
@@ -51,6 +57,7 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 8,
   },
   stepContainer: {
