@@ -66,9 +66,6 @@ const Main = ({ navigation }) => {
     console.log('Date', d);
 
     if (userClass && db) { // Check if db exists
-      onValue(dbRef, (snapshot) => {
-        console.log('User data: ', snapshot.val());
-      });
 
       let classEnd = null;
       
