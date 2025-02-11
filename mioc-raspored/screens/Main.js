@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, onValue } from 'firebase/database';
+import { getDatabase, ref, onValue, database } from 'firebase/database';
 import { Alert } from 'react-native';
 
 const firebaseConfig = {
@@ -30,6 +30,7 @@ try {
 const Main = ({ navigation }) => {
   const [userClass, setUserClass] = useState('');
   const [currentDay, setCurrentDay] = useState('');
+  const [currentClassString, setCurrentClassString] = useState('No active class');
 
   useEffect(() => {
     let isMounted = true;
@@ -56,14 +57,42 @@ const Main = ({ navigation }) => {
 
   useEffect(() => {
     const weekday = ["Ned", "Pon", "Uto", "Sri", "Cet", "Pet", "Sub"];
-    const d = new Date();
+    const dr = new Date();
+    const d = new Date(dr.getTime() + 1 * 60 * 60 * 1000); // Add 1 hour to get Croatian time
     const day = weekday[d.getDay()];
+    const dbRef = ref(db, `classes/${userClass}/scheduleA/${day}`);
     setCurrentDay(day);
 
+    console.log('Date', d);
+
     if (userClass && db) { // Check if db exists
-      const dbRef = ref(db, `classes/${userClass}/scheduleA/${day}`);
       onValue(dbRef, (snapshot) => {
         console.log('User data: ', snapshot.val());
+      });
+
+      let classEnd = null;
+      
+      onValue(dbRef, (snapshot) => {
+        
+        let isClassActive = false;
+
+        snapshot.forEach(childSnapshot => {
+          const Start = childSnapshot.val().Start;
+          const [startHours, startMinutes] = Start.split(':').map(Number);
+
+          // Create Date objects for comparison
+          const classStart = new Date();
+          classStart.setHours(startHours+1, startMinutes, 0, 0);
+          const classEnd = new Date(classStart.getTime() + 45 * 60 * 1000); // Add 45 minutes
+
+          if (d >= classStart && d <= classEnd) {
+            setCurrentClassString(childSnapshot.val().Order);
+            isClassActive = true;
+          };
+        });
+        if (isClassActive === false) {
+          setCurrentClassString('No active class');
+        }
       });
     }
   }, [userClass]);
@@ -74,10 +103,10 @@ const Main = ({ navigation }) => {
       {(currentDay === "Sub" || currentDay === "Ned") ? (
         <Text style={styles.normalText}>Uživajte u vikendu (dok možete).</Text>
       ) : (
-        <Text style={styles.normalText}>Trenutni sat: </Text>
+        <Text style={styles.normalText}>Trenutni sat: {currentClassString}</Text>
       )}
       <TouchableOpacity style={styles.changeClassButton} onPress={() => navigation.navigate("ClassSelection")}>
-        <Text style={styles.buttonText}>Switch class</Text>
+        <Text style={styles.buttonText}>Promijeni razred</Text>
       </TouchableOpacity>
     </View>
   );
@@ -114,7 +143,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontWeight: 'bold',
     color: 'white',
-    fontSize: 18,
+    fontSize: 19,
   }
 });
 
