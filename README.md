@@ -1,1 +1,1 @@
-Make MIOC great again!
+Make XV. Gimnazija Zagreb MIOC again!
