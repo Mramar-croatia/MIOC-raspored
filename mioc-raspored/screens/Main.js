@@ -70,24 +70,35 @@ const Main = ({ navigation }) => {
       let classEnd = null;
       
       onValue(dbRef, (snapshot) => {
-        
-        let isClassActive = false;
-
+        const classes = []; // Array to hold all class data
+      
+        // 1. First, save all classes into the array
         snapshot.forEach(childSnapshot => {
           const Start = childSnapshot.val().Start;
           const [startHours, startMinutes] = Start.split(':').map(Number);
-
-          // Create Date objects for comparison
+      
           const classStart = new Date();
-          classStart.setHours(startHours+1, startMinutes, 0, 0);
-          const classEnd = new Date(classStart.getTime() + 45 * 60 * 1000); // Add 45 minutes
-
-          if (d >= classStart && d <= classEnd) {
-            setCurrentClassString(childSnapshot.val().Order);
-            isClassActive = true;
-          };
+          classStart.setHours(startHours + 1, startMinutes, 0, 0);
+          const classEnd = new Date(classStart.getTime() + 45 * 60 * 1000);
+      
+          // Push class details into the array
+          classes.push({
+            Order: childSnapshot.val().Order,
+            classStart: classStart,
+            classEnd: classEnd
+          });
         });
-        if (isClassActive === false) {
+      
+        // 2. Now process each class in the array
+        let isClassActive = false;
+        classes.forEach(cls => {
+          if (d >= cls.classStart && d <= cls.classEnd) {
+            setCurrentClassString(cls.Order);
+            isClassActive = true;
+          }
+        });
+      
+        if (!isClassActive) {
           setCurrentClassString('No active class');
         }
       });
