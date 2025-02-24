@@ -31,6 +31,7 @@ const Main = ({ navigation }) => {
   const [userClass, setUserClass] = useState('');
   const [currentDay, setCurrentDay] = useState('');
   const [currentClassString, setCurrentClassString] = useState('No active class');
+  const [classes, setClasses] = useState([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -58,7 +59,7 @@ const Main = ({ navigation }) => {
   useEffect(() => {
     const weekday = ["Ned", "Pon", "Uto", "Sri", "Cet", "Pet", "Sub"];
     const dr = new Date();
-    const d = new Date(dr.getTime() + 1 * 60 * 60 * 1000); // Add 1 hour to get Croatian time
+    const d = new Date(dr.getTime() - 7 * 60 * 60 * 1000); // Add 1 hour to get Croatian time
     const day = weekday[d.getDay()];
     const dbRef = ref(db, `classes/${userClass}/scheduleA/${day}`);
     setCurrentDay(day);
@@ -70,7 +71,7 @@ const Main = ({ navigation }) => {
       let classEnd = null;
       
       onValue(dbRef, (snapshot) => {
-        const classes = []; // Array to hold all class data
+        setClasses([]);
       
         // 1. First, save all classes into the array
         snapshot.forEach(childSnapshot => {
@@ -88,20 +89,23 @@ const Main = ({ navigation }) => {
             classEnd: classEnd
           });
         });
-      
-        // 2. Now process each class in the array
-        let isClassActive = false;
-        classes.forEach(cls => {
-          if (d >= cls.classStart && d <= cls.classEnd) {
-            setCurrentClassString(cls.Order);
-            isClassActive = true;
-          }
-        });
-      
-        if (!isClassActive) {
-          setCurrentClassString('No active class');
+      });
+
+      let isClassActive = false;
+      classes.forEach(cls => {
+        if (d >= cls.classStart && d <= cls.classEnd) {
+          setCurrentClassString(cls.Order);
+          isClassActive = true;
         }
       });
+    
+      if (!isClassActive) {
+        if (d > classes[classes.length-1].classEnd || d < classes[0].classStart) {
+          setCurrentClassString('No active class');
+        } else {
+          setCurrentClassString('Break');
+        }
+      }
     }
   }, [userClass]);
 
